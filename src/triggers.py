@@ -1,21 +1,38 @@
 import time
 import random
 import win32gui
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+import keyboard 
 import options
 
 class EventManager:
     def __init__(self, notifier):
         self.notifier = notifier
         self.last_trigger_time = 0
-        self.cooldown_delay = 2.0  # Global cooldown in seconds
-        self.observer = None
+        self.cooldown_delay = 2.0
+        self.running = False
+
+        # Global Hotkey: Triggers "Progress Saved" ONLY if active window matches list
+        keyboard.add_hotkey('ctrl+s', self._on_save_pressed)
+
+    def _on_save_pressed(self):
+        """Called automatically when Ctrl+S is pressed"""
+        if not self.running: return
+
+        # 1. Get the current active window title
+        try:
+            window_id = win32gui.GetForegroundWindow()
+            window_title = win32gui.GetWindowText(window_id)
+        except Exception:
+            return # Safety catch if window handle fails
+
+        # 2. Check if the active window is in our "Watched List"
+        # We convert both to lowercase so "Notepad" matches "notepad"
+        is_target_app = any(app.lower() in window_title.lower() for app in options.WATCHED_APPS)
+
+        if is_target_app:
+            self.try_trigger("save")
 
     def try_trigger(self, event_type):
-        # The central brain: Checks cooldowns & probability, then notifies.
-
-        # 1. Cooldown Check
         current_time = time.time()
         if current_time - self.last_trigger_time < self.cooldown_delay:
             return 
@@ -24,33 +41,27 @@ class EventManager:
         if not config:
             return
 
-        # 2. Probability Check
         if random.random() < config["chance"]:
             print(f"[Event] Triggering: {config['text']}")
             self.last_trigger_time = current_time 
             self.notifier.show_message(config["text"], config["color"])
 
-    def start_file_watch(self, path="."):
-        """ Starts the background thread for file watching """
-        event_handler = _SaveHandler(self.try_trigger)
-        self.observer = Observer()
-        self.observer.schedule(event_handler, path, recursive=True)
-        self.observer.start()
-        print(f"[System] Watching files in: {path}")
-
     def start_window_monitor(self):
         """ Starts the blocking loop for window monitoring """
-        print("[System] Monitoring window changes...")
+        print("[System] Monitoring window changes & hotkeys...")
+        self.running = True
         last_window = ""
+        
         try:
-            while True:
+            while self.running:
                 window_id = win32gui.GetForegroundWindow()
                 window_title = win32gui.GetWindowText(window_id)
                 
                 if window_title != last_window and window_title != "":
                     last_window = window_title
                     
-                    # Custom Logic for Window Types
+                    # Optional: Reuse the same list for "Humanity Restored" triggers?
+                    # Or keep specific logic for coding apps here:
                     if "VS Code" in window_title or "PyCharm" in window_title:
                         self.try_trigger("coding")
                     else:
@@ -58,20 +69,12 @@ class EventManager:
                 
                 time.sleep(0.3)
         except KeyboardInterrupt:
+            pass
+        finally:
             self.stop()
 
     def stop(self):
         """ Clean shutdown """
-        if self.observer:
-            self.observer.stop()
-            self.observer.join()
+        self.running = False
+        keyboard.unhook_all() # Stop listening to keys
         print("\n[System] Praise the Sun! (Shutting down)")
-
-# --- INTERNAL HELPER CLASS ---
-class _SaveHandler(FileSystemEventHandler):
-    def __init__(self, callback_func):
-        self.trigger_callback = callback_func
-
-    def on_modified(self, event):
-        if not event.is_directory:
-            self.trigger_callback("save")
