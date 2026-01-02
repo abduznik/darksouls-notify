@@ -46,9 +46,3 @@ I am looking for more creative triggers! If you have ideas for system events to 
     └── triggers.py
 
 ```
-
-
-### Summary of Fixes:
-1.  **Dependencies:** Added `pyperclip` to the install command (crucial for the "You Died" trigger).
-2.  **Run Command:** Changed to `cd src` then `python main.py` so it finds the files correctly.
-3.  **File Paths:** Added a "Project Structure" section so contributors know exactly where `assets` and `src` files should live.
