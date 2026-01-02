@@ -1,0 +1,49 @@
+name: Manual Build and Release
+
+# This replaces "on: push" with a manual form
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version Number (e.g., v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+      title:
+        description: 'Release Title (e.g., Added System Tray)'
+        required: true
+        default: 'Minor Update'
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    # 1. Check out code
+    - uses: actions/checkout@v3
+
+    # 2. Setup Python
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11' 
+
+    # 3. Install Dependencies
+    - name: Install Dependencies
+      run: |
+        pip install -r requirements-dev.txt
+
+    # 4. Build EXE
+    - name: Build EXE
+      run: |
+        python build.py
+
+    # 5. Create Release
+    # We use the inputs you typed in the form to name the release
+    - name: Create Release & Upload
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.event.inputs.version }}
+        name: "${{ github.event.inputs.version }} - ${{ github.event.inputs.title }}"
+        files: dist/DarkSoulsNotify.exe
+        draft: false
+        prerelease: false
