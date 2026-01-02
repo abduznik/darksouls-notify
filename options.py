@@ -2,7 +2,7 @@
 NOTIFICATIONS = {
     "save": {
         "text": "PROGRESS SAVED",
-        "chance": 0.5, # 50% chance when saving a file
+        "chance": 0.05, # 50% chance when saving a file
         "color": "#d4af37" # Gold
     },
     "app_switch": {
