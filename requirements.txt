@@ -1,4 +1,5 @@
 pygame
+pystray
+Pillow
+keyboard
 pywin32
-watchdog
-pyperclip
