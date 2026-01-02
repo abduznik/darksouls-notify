@@ -7,7 +7,7 @@ NOTIFICATIONS = {
     },
     "app_switch": {
         "text": "AREA DISCOVERED",
-        "chance": 0.1, # 10% chance when switching windows
+        "chance": 0.01, # 10% chance when switching windows
         "color": "#d4af37"
     },
     "coding": {
@@ -23,5 +23,5 @@ NOTIFICATIONS = {
 }
 
 # General Settings
-FONT_PATH = "assets/OptimusPrinceps.ttf" # Ensure you have this font installed or linked
+FONT_PATH = "assets/OptimusPrinceps.ttf"
 SOUND_PATH = "assets/new_area.mp3"
