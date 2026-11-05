@@ -39,6 +39,30 @@ To create a standalone portable `.exe` file that works on any Windows machine wi
 3.  **Find your App:**
     The generic executable will be located in the `dist/` folder.
 
+## Releases (all platforms)
+
+Every tag matching `v*` runs `.github/workflows/release.yml` and publishes
+standalone single-file executables to GitHub Releases — no Python install
+needed on the target machine:
+
+| platform | file |
+|---|---|
+| Windows x64 | `DarkSoulsNotify-windows-x64.exe` |
+| Linux x64 | `DarkSoulsNotify-linux-x64` |
+| macOS (Apple silicon) | `DarkSoulsNotify-macos-arm64` |
+
+Push a tag to cut a release:
+
+```bash
+git tag v0.0.2 && git push origin v0.0.2
+```
+
+The workflow also runs on `workflow_dispatch`, so the build can be tested
+without cutting a release (artifacts are attached to the run instead).
+Each binary must pass a `--version` smoke test before it is published.
+Note: window/hotkey monitoring is only functional on Windows; Linux and
+macOS builds freeze the tray/notification stack for packaging purposes.
+
 ## Configuration
 
 You can customize which apps trigger the "Progress Saved" notification by editing `src/options.py`.

@@ -1,7 +1,10 @@
 import time
 import random
-import win32gui
-import keyboard 
+try:
+    import win32gui
+except ImportError:
+    win32gui = None
+import keyboard
 import options
 
 class EventManager:
@@ -48,6 +51,18 @@ class EventManager:
 
     def start_window_monitor(self):
         """ Starts the blocking loop for window monitoring """
+        if win32gui is None:
+            print("[System] Window monitoring is only available on Windows. Idle until quit.")
+            self.running = True
+            try:
+                while self.running:
+                    time.sleep(0.5)
+            except KeyboardInterrupt:
+                pass
+            finally:
+                self.stop()
+            return
+
         print("[System] Monitoring window changes & hotkeys...")
         self.running = True
         last_window = ""

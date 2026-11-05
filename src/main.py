@@ -1,3 +1,11 @@
+import sys
+
+__version__ = "0.0.2"
+
+if "--version" in sys.argv[1:]:
+    print(f"DarkSoulsNotify {__version__}")
+    sys.exit(0)
+
 import threading
 from notifier import SoulNotifier
 from triggers import EventManager
