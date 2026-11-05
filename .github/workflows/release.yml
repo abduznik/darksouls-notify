@@ -46,7 +46,8 @@ jobs:
 
       - name: Smoke test executable
         shell: bash
-        run: ./dist/${{ matrix.artifact }} --version
+        run: |
+          ./dist/${{ matrix.artifact }} --version
 
       - uses: actions/upload-artifact@v4
         with:
